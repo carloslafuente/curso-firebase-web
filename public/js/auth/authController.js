@@ -1,5 +1,5 @@
 $(() => {
-  //$("#authFB").click(() => );
+  const objAuth = new Autenticacion();
 
   $('#btnRegistroEmail').click(() => {
     console.log('AQUI');
@@ -16,10 +16,18 @@ $(() => {
     const password = $('#passwordSesion').val();
     // TODO : LLamar auth cuenta con email
     const auth = new Autenticacion();
-    auth.autEmailPass(email, password);
+    auth.authEmailPass(email, password);
   });
 
-  //$("#authGoogle").click(() => //AUTH con GOOGLE);
+  $('#btnResetPassword').click(() => {
+    const email = $('#emailSesion').val();
+    const auth = new Autenticacion();
+    auth.reestablecerPass(email);
+  });
+
+  $('#authGoogle').click(() => objAuth.authCuentaGoogle());
+
+  $('#authFB').click(() => objAuth.authCuentaFacebook());
 
   //$("#authTwitter").click(() => //AUTH con Twitter);
 

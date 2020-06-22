@@ -1,5 +1,5 @@
 class Autenticacion {
-  autEmailPass(email, password) {
+  authEmailPass(email, password) {
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
@@ -22,7 +22,7 @@ class Autenticacion {
       .createUserWithEmailAndPassword(email, password)
       .then((result) => {
         result.user.updateProfile({
-          displayeName: nombres,
+          displayName: nombres,
         });
 
         const configuracion = {
@@ -48,16 +48,64 @@ class Autenticacion {
       });
   }
 
+  reestablecerPass(email) {
+    if (email) {
+      const configuracion = {
+        url: 'http://localhost:3000/',
+      };
+      firebase
+        .auth()
+        .sendPasswordResetEmail(email, configuracion)
+        .then((result) => {
+          Materialize.toast(
+            `Se ha enviado un correo de verificacion a: ${email}`,
+            4000
+          );
+          $('.modal').modal('close');
+        })
+        .catch((error) => {
+          console.error(error);
+          Materialize.toast(error.message, 4000);
+        });
+    }
+  }
+
   authCuentaGoogle() {
-    //$('#avatar').attr('src', result.user.photoURL)
-    //$('.modal').modal('close')
-    //Materialize.toast(`Bienvenido ${result.user.displayName} !! `, 4000)
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then((result) => {
+        $('#avatar').attr('src', result.user.photoURL);
+        $('.modal').modal('close');
+        Materialize.toast(`Bienvenido ${result.user.displayName} !! `, 4000);
+      })
+      .catch((error) => {
+        console.error(error);
+        Materialize.toast(
+          `Error al autenticarse con google ${error} !! `,
+          4000
+        );
+      });
   }
 
   authCuentaFacebook() {
-    //$('#avatar').attr('src', result.user.photoURL)
-    //$('.modal').modal('close')
-    //Materialize.toast(`Bienvenido ${result.user.displayName} !! `, 4000)
+    const provider = new firebase.auth.FacebookAuthProvider();
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then((result) => {
+        $('#avatar').attr('src', result.user.photoURL);
+        $('.modal').modal('close');
+        Materialize.toast(`Bienvenido ${result.user.displayName} !! `, 4000);
+      })
+      .catch((error) => {
+        console.error(error);
+        Materialize.toast(
+          `Error al autenticarse con facebook ${error} !! `,
+          4000
+        );
+      });
   }
 
   authTwitter() {

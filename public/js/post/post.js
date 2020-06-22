@@ -1,22 +1,75 @@
 class Post {
-  constructor () {
-      // TODO inicializar firestore y settings
-
+  constructor() {
+    // TODO inicializar firestore y settings
+    this.db = firebase.firestore();
   }
 
-  crearPost (uid, emailUser, titulo, descripcion, imagenLink, videoLink) {
-    
+  crearPost(uid, emailUser, titulo, descripcion, imagenLink, videoLink) {
+    return this.db
+      .collection('posts')
+      .add({
+        uid: uid,
+        autor: emailUser,
+        titulo: titulo,
+        descripcion: descripcion,
+        imagen: imagenLink,
+        video: videoLink,
+        fecha: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then((refDoc) => {
+        console.log(`Id del post => ${refDoc.id}`);
+      })
+      .catch((error) => {
+        console.error(`Error creando el post => ${error}`);
+      });
   }
 
-  consultarTodosPost () {
-    
+  consultarTodosPost() {
+    this.db.collection('posts').onSnapshot((querySnapshot) => {
+      $('#posts').empty();
+      if (querySnapshot.empty) {
+        $('#posts').append(this.obtenerTemplatePostVacio());
+      } else {
+        querySnapshot.forEach((post) => {
+          let postHtml = this.obtenerPostTemplate(
+            post.data().autor,
+            post.data().titulo,
+            post.data().descripcion,
+            post.data().video,
+            post.data().imagen,
+            Utilidad.obtenerFecha(post.data().fecha.toDate())
+          );
+          $('#posts').append(postHtml);
+        });
+      }
+    });
   }
 
-  consultarPostxUsuario (emailUser) {
-    
+  consultarPostxUsuario(emailUser) {
+    this.db
+      .collection('posts')
+      .where('autor', '==', emailUser)
+      .onSnapshot((querySnapshot) => {
+        $('#posts').empty();
+        if (querySnapshot.empty) {
+          $('#posts').append(this.obtenerTemplatePostVacio());
+        } else {
+          querySnapshot.forEach((post) => {
+            let postHtml = this.obtenerPostTemplate(
+              post.data().autor,
+              post.data().titulo,
+              post.data().descripcion,
+              post.data().video,
+              post.data().imagen,
+              Utilidad.obtenerFecha(post.data().fecha.toDate())
+            );
+            $('#posts').append(postHtml);
+          });
+        }
+      });
   }
 
-  obtenerTemplatePostVacio () {
+  obtenerTemplatePostVacio() {
     return `<article class="post">
       <div class="post-titulo">
           <h5>Crea el primer Post a la comunidad</h5>
@@ -41,10 +94,10 @@ class Post {
       </div>
       <div class="post-footer container">         
       </div>
-  </article>`
+  </article>`;
   }
 
-  obtenerPostTemplate (
+  obtenerPostTemplate(
     autor,
     titulo,
     descripcion,
@@ -84,7 +137,7 @@ class Post {
                     </div>        
                 </div>
             </div>
-        </article>`
+        </article>`;
     }
 
     return `<article class="post">
@@ -119,6 +172,6 @@ class Post {
                         </div>        
                     </div>
                 </div>
-            </article>`
+            </article>`;
   }
 }
